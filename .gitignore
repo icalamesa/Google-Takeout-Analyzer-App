@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# PyInstaller
+*.spec
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Python environments
+.env
+.venv
+env/
+venv/
+
+# Spyder project settings
+.spyderproject
+
+# VSCode settings
+.vscode/
+
+# PyCharm project files
+.idea/
+
+# mypy
+.mypy_cache/
+
+# Coverage reports
+.coverage
+.coverage.*
+htmlcov/
+cov_html/
+*.cover
+
+# Unit test and coverage reports
+.cache/
+.pytest_cache/
+*.py,cover
+*.junit.xml
+
+# Custom
+*.code-workspace

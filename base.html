@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Picker Example</title>
+  <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+  <button id="pick-folder">Pick Takeout Folder</button>
+
+  <script>
+    let developerKey = 'YOUR_API_KEY'; // Replace with your API Key
+    let clientId = '21216134305-itadbqhnemt7ilc4tv99mrs285uv397d.apps.googleusercontent.com'; // Replace with your OAuth Client ID
+    let scope = 'https://www.googleapis.com/auth/drive.file';
+    let oauthToken;
+
+    // Load the Google API and initialize OAuth
+    function loadPicker() {
+      gapi.load('auth', { 'callback': onAuthApiLoad });
+      gapi.load('picker', { 'callback': onPickerApiLoad });
+    }
+
+    function onAuthApiLoad() {
+      gapi.auth.authorize(
+        {
+          client_id: clientId,
+          scope: scope,
+          immediate: false,
+        },
+        handleAuthResult
+      );
+    }
+
+    function handleAuthResult(authResult) {
+      if (authResult && !authResult.error) {
+        oauthToken = authResult.access_token;
+        console.log('OAuth Token:', oauthToken);
+      }
+    }
+
+    function onPickerApiLoad() {
+      document.getElementById('pick-folder').addEventListener('click', createPicker);
+    }
+
+    // Create the Picker dialog
+    function createPicker() {
+      if (oauthToken) {
+        const picker = new google.picker.PickerBuilder()
+          .addView(google.picker.ViewId.FOLDERS) // View limited to folders
+          .setOAuthToken(oauthToken)
+          .setDeveloperKey(developerKey)
+          .setCallback(pickerCallback)
+          .build();
+        picker.setVisible(true);
+      } else {
+        console.log('OAuth token not available.');
+      }
+    }
+
+    // Handle Picker response
+    function pickerCallback(data) {
+      if (data.action === google.picker.Action.PICKED) {
+        const folder = data.docs[0];
+        console.log('Selected Folder:', folder);
+        console.log('Folder ID:', folder.id);
+
+        // Use folder.id to fetch folder contents via the Drive API
+      } else if (data.action === google.picker.Action.CANCEL) {
+        console.log('Picker closed without selection.');
+      }
+    }
+
+    // Load Picker on page load
+    window.onload = loadPicker;
+  </script>
+</body>
+</html>
