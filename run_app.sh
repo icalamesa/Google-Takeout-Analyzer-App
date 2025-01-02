@@ -13,7 +13,7 @@ echo "Activating virtual environment..."
 source venv/bin/activate
 
 echo "Running the Dash app..."
-python dash_app.py &
+python app/dash_app.py &
 
 PID=$!
 

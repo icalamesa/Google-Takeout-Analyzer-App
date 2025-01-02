@@ -1,5 +1,3 @@
-complete_action,action_code,timestamp,link_action_name,link_action_text,channel_link,channel_name,link3,link3_text
-"Se ha iniciado una descarga en bloque en Drive Se han solicitado 18 archivos y carpetas 10 sept 2023, 18:29:17 CET","Se ha iniciado una descarga en bloque en Drive Se han solicitado 18 archivos y carpetas 10 sept 2023, 18:29:17 CET",,,,,,,
-"Se ha iniciado una descarga en bloque en Drive Se han solicitado 18 archivos y carpetas 10 sept 2023, 18:29:17 CET","Se ha iniciado una descarga en bloque en Drive Se han solicitado 18 archivos y carpetas 10 sept 2023, 18:29:17 CET",,,,,,,
-"Se ha iniciado una descarga en bloque en Drive Se han solicitado 1 archivos y carpetas 3 dic 2021, 19:36:31 CET","Se ha iniciado una descarga en bloque en Drive Se han solicitado 1 archivos y carpetas 3 dic 2021, 19:36:31 CET",,,,,,,
-"Se ha iniciado una descarga en bloque en Drive Se han solicitado 1 archivos y carpetas 3 dic 2021, 19:36:31 CET","Se ha iniciado una descarga en bloque en Drive Se han solicitado 1 archivos y carpetas 3 dic 2021, 19:36:31 CET",,,,,,,
+platform,action_code,timestamp,link_action_name,link_action_text,channel_link,channel_name,link3,link3_text
+platform,Se ha iniciado una descarga en bloque en Drive,"10 sept 2023, 18:29:17 CET",,,,,,
+platform,Se ha iniciado una descarga en bloque en Drive,"3 dic 2021, 19:36:31 CET",,,,,,
