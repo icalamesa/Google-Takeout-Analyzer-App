@@ -1,0 +1,1 @@
+CREATE TABLE clean_yo

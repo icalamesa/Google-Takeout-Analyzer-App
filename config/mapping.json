@@ -1,0 +1,30 @@
+{
+    "data_files": [
+      {
+        "id": "profiles",
+        "enabled": true,
+        "files": {
+          "es": "{base_path}/Perfil/Perfil.json"
+        },
+        "mapping_file": "mappings/clean_profiles.sql"
+      },
+      {
+        "id": "calendar_events",
+        "enabled": true,
+        "files": {
+          "es": "data/all_calendars.csv"
+        },
+        "mapping_file": "mappings/clean_calendar_events.sql"
+      },
+      {
+        "id": "activity_history",
+        "enabled": true,
+        "files": {
+          "es": "data/output.csv"
+        },
+        "mapping_file": "mappings/clean_activity_history.sql"
+      }
+    ]
+}
+  
+  

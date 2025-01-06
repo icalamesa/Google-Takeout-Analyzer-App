@@ -7,5 +7,6 @@ plotly.express
 lxml
 ipykernel
 bs4
-psycopg2
+duckdb
 docker
+icalendar
