@@ -51,6 +51,6 @@ cov_html/
 
 # Custom
 *.code-workspace
-output.*
 data/*
-*.duckdb
+output.*
+*duckdb
