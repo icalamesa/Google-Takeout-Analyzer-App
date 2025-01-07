@@ -319,24 +319,11 @@ def __main__():
     load_all()
     #load_data_to_duckdb(os.path.join("data", "output.csv"), 'csv_table', conn)
     run_mapping(conn, os.path.join('config','mapping.json'))
-    query = "SELECT channel_name, COUNT(*) AS total_count, \
-    CAST( \
-        CAST('1970-01-01' AS TIMESTAMP) \
-        + CAST( \
-            ROUND( \
-                AVG( \
-                    EXTRACT(EPOCH FROM activity_timestamp) \
-                    - EXTRACT(EPOCH FROM DATE_TRUNC('day', activity_timestamp)) \
-                ) \
-            ) AS INT \
-        ) * INTERVAL '1' SECOND \
-        AS TIME \
-    ) AS avg_time_of_day \
-FROM clean_activity_history \
-WHERE platform = 'YouTube' \
-  AND action_code = 'Has visto' \
-GROUP BY channel_name \
-ORDER BY total_count DESC;"
+    
+    query = None
+    with open(os.path.join('mappings', 'test_query.sql'), 'r', encoding='utf-8') as file:
+        query = file.read()
+    
     result = db.query_data(conn, query=query)
 
     print(result.head(50))
