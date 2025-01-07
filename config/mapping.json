@@ -12,15 +12,23 @@
         "id": "calendar_events",
         "enabled": true,
         "files": {
-          "es": "data/all_calendars.csv"
+          "es": "{transformations_path}/all_calendars.csv"
         },
         "mapping_file": "mappings/clean_calendar_events.sql"
+      },
+      {
+        "id": "video_metadata",
+        "enabled": true,
+        "files": {
+          "es": "{base_path}/YouTube y YouTube Music/metadatos del vídeo/vídeos.csv"
+        },
+        "mapping_file": "mappings/clean_videos_metadata.sql"
       },
       {
         "id": "activity_history",
         "enabled": true,
         "files": {
-          "es": "data/output.csv"
+          "es": "{transformations_path}/output.csv"
         },
         "mapping_file": "mappings/clean_activity_history.sql"
       }

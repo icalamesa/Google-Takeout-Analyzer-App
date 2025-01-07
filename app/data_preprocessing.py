@@ -4,10 +4,13 @@ import os
 from multiprocessing import Pool
 from bs4 import BeautifulSoup, SoupStrainer
 import itertools
-from datetime import datetime
 import mmap
 from icalendar import Calendar, Event
 import pathlib
+from datetime import datetime
+from dateutil import parser
+from babel.dates import get_month_names, get_day_names
+import locale
 
 import database as db
 
@@ -87,6 +90,29 @@ def get_html_contents(file_path, chunk_size=524288):
             yield buffer[:last_tag_end + 1]
             buffer = buffer[last_tag_end + 1:]
 
+def translate_date(date_str):
+    # curently only supporting spanish
+    spanish_months = {
+        'ene': 'Jan', 'feb': 'Feb', 'mar': 'Mar', 'abr': 'Apr',
+        'may': 'May', 'jun': 'Jun', 'jul': 'Jul', 'ago': 'Aug',
+        'oct': 'Oct', 'nov': 'Nov', 'dic': 'Dec', 'sept':'Sep'
+    }
+    
+    for sp, en in spanish_months.items():
+        date_str = date_str.replace(sp, en)
+    return date_str
+
+def parse_date(date_str, lang='es'):
+    try:
+        if lang == 'es':
+            date_str = translate_date(date_str)
+
+        # Parse the date using the standard datetime library
+        dt = datetime.strptime(date_str, '%d %b %Y, %H:%M:%S cet')
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+    except ValueError as e:
+        #print(f"Error parsing date: {e}")
+        return '-1'
 
 def process_chunk(html_content):
     """
@@ -127,13 +153,14 @@ def process_chunk(html_content):
             entry = {
                 "platform": platform,
                 "action_code": action_code,
-                "timestamp": timestamp,
+                "timestamp": parse_date(str(timestamp)),
                 "link_action_name": links[0]['href'] if len(links) > 0 else '',
                 "link_action_text": link_action_text,
                 "channel_link": links[1]['href'] if len(links) > 1 else '',
                 "channel_name": links[1].get_text(strip=True) if len(links) > 1 else '',
                 "link3": links[2]['href'] if len(links) > 2 else '',
-                "link3_text": links[2].get_text(strip=True) if len(links) > 2 else ''
+                "link3_text": links[2].get_text(strip=True) if len(links) > 2 else '',
+                "all": stripped_strings
             }
             entries.append(entry)
     
@@ -224,7 +251,7 @@ def load_all():
             read_html(FILE_TAKEOUT_ACTIVITY_LOG_PATH, max_threads=8)
         ], 
         ignore_index=True)
-    activity_logs_df.to_csv('output.csv', index=False, sep='\t')
+    activity_logs_df.to_csv(os.path.join('data', 'output.csv'), index=False, sep='\t')
 
 
 ############# ENTITY MAPPER FUNCTIONS
@@ -251,7 +278,7 @@ def load_config(config_path, language_code='es'):
             item['id']: {
                 'file_path': item['files'][language_code].replace("{base_path}", base_path).replace("{transformations_path}", 'data'),
                 'mapping_path': item['mapping_file'].replace("{base_path}", base_path),
-                'enabled': item.get("enabled", True)  # Default to enabled if not specified
+                'enabled': item['enabled']  # Default to enabled if not specified
             }
             for item in config['data_files']
         }
@@ -275,7 +302,7 @@ def run_mapping(conn, config_path, language_code='es'):
     try:
         paths = load_config(config_path, language_code)
         for key, config in paths.items():
-            if config['enabled']:
+            if config['enabled'] == True:
                 db.create_raw_view(conn, config['file_path'], key)
                 db.create_table_from_mapping(conn, config['mapping_path'])
                 print(f"FINISHED processing {key} from {config['file_path']} using {config['mapping_path']}")
@@ -292,9 +319,27 @@ def __main__():
     load_all()
     #load_data_to_duckdb(os.path.join("data", "output.csv"), 'csv_table', conn)
     run_mapping(conn, os.path.join('config','mapping.json'))
-    result = db.query_data(conn, "SELECT * FROM raw_profiles")
+    query = "SELECT channel_name, COUNT(*) AS total_count, \
+    CAST( \
+        CAST('1970-01-01' AS TIMESTAMP) \
+        + CAST( \
+            ROUND( \
+                AVG( \
+                    EXTRACT(EPOCH FROM activity_timestamp) \
+                    - EXTRACT(EPOCH FROM DATE_TRUNC('day', activity_timestamp)) \
+                ) \
+            ) AS INT \
+        ) * INTERVAL '1' SECOND \
+        AS TIME \
+    ) AS avg_time_of_day \
+FROM clean_activity_history \
+WHERE platform = 'YouTube' \
+  AND action_code = 'Has visto' \
+GROUP BY channel_name \
+ORDER BY total_count DESC;"
+    result = db.query_data(conn, query=query)
 
-    print(result)
+    print(result.head(50))
 
 __main__()
     

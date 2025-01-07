@@ -1,10 +1,13 @@
 CREATE OR REPLACE TABLE clean_calendar_events AS
 SELECT
-    'Calendar' as calendar_name,
-    'Title' as title,
-    'Start' as start_time,
-    'End' as end_time,
-    'Duration' as duration,
-    'Organizer' as organizer
-FROM raw_calendar_events
-    
+    'Calendar'::VARCHAR AS calendar_name,
+    'Title'::VARCHAR AS title,
+    STRPTIME(CAST("Start" AS VARCHAR), '%Y-%m-%d %H:%M:%S') AS start_time,
+    STRPTIME(CAST("End"   AS VARCHAR), '%Y-%m-%d %H:%M:%S') AS end_time,
+    DATEDIFF(
+        'day',
+        STRPTIME(CAST("End"   AS VARCHAR), '%Y-%m-%d %H:%M:%S'),
+        STRPTIME(CAST("Start" AS VARCHAR), '%Y-%m-%d %H:%M:%S')
+    ) AS duration,
+    'Organizer'::VARCHAR AS organizer
+FROM raw_calendar_events;
