@@ -65,11 +65,15 @@ def load_csv_to_duckdb(file_path, table_name, conn):
             separator = detect_separator(sample)
         df = pd.read_csv(file_path, delimiter=separator)
 
+        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns] #lower and replace whitespace with underscore
+
         if df.empty:
-            conn.execute(f"CREATE TABLE {table_name} ({', '.join(df.columns)});")
+            query = f"CREATE TABLE {table_name} ({', '.join(df.columns)});"
+            conn.execute(query)
         else:
             conn.register('temp_table', df)
-            conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM temp_table")
+            query = f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM temp_table"
+            conn.execute(query)
 
     except FileNotFoundError:
         raise FileNotFoundError(f"The file {file_path} was not found.")

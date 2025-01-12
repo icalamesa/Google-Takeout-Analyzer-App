@@ -17,20 +17,28 @@
         "mapping_file": "mappings/clean_calendar_events.sql"
       },
       {
-        "id": "video_metadata",
-        "enabled": true,
-        "files": {
-          "es": "{base_path}/YouTube y YouTube Music/metadatos del vídeo/vídeos.csv"
-        },
-        "mapping_file": "mappings/clean_videos_metadata.sql"
-      },
-      {
         "id": "activity_history",
         "enabled": true,
         "files": {
           "es": "{transformations_path}/output.csv"
         },
         "mapping_file": "mappings/clean_activity_history.sql"
+      },
+      {
+        "id": "all_activity_accesses",
+        "enabled": true,
+        "files": {
+          "es": "{base_path}/Actividad de registro de accesos/Actividades_ una lista con los servicios de Google.csv"
+        },
+        "mapping_file": "mappings/clean_all_activity_accesses.sql"
+      },
+      {
+        "id": "video_metadata",
+        "enabled": false,
+        "files": {
+          "es": "{base_path}/YouTube y YouTube Music/metadatos del vídeo/vídeos.csv"
+        },
+        "mapping_file": "mappings/clean_videos_metadata.sql"
       }
     ]
 }

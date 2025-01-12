@@ -10,7 +10,7 @@ update_dependencies() {
     pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
 
     echo "Installing/updating dependencies..."
-    pip install -r requirements.txt || { echo "Failed to install dependencies"; exit 1; }
+    pip install -r requirements.txt --no-cache-dir || { echo "Failed to install dependencies"; exit 1; }
 
     echo "Dependencies installed/updated."
 }

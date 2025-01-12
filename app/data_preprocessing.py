@@ -16,7 +16,7 @@ import database as db
 
 # Base paths
 DATA_OUTPUT_FOLDER = "data"
-TAKEOUT_PATH = "/home/ivan/Desktop/datasets/Takeout"  # Change if necessary
+TAKEOUT_PATH = "/home/ivan/Desktop/datasets/other_takeouts/Takeout"  # Change if necessary
 
 # Activity log paths
 ACTIVITY_LOG_PATH = os.path.join(TAKEOUT_PATH, "Mi actividad")
@@ -32,7 +32,7 @@ FILE_TAKEOUT_ACTIVITY_LOG_PATH = os.path.join(FOLDER_TAKEOUT_ACTIVITY_LOG_PATH, 
 
 # YouTube activity log
 FOLDER_YOUTUBE_ACTIVITY_LOG_PATH = os.path.join(ACTIVITY_LOG_PATH, "YouTube")
-FILE_YOUTUBE_ACTIVITY_LOG_PATH = os.path.join(FOLDER_YOUTUBE_ACTIVITY_LOG_PATH, ACTIVITY_PLACEHOLDER_NAME)
+FILE_YOUTUBE_ACTIVITY_LOG_PATH = os.path.join(TAKEOUT_PATH, "Mi actividad") #os.path.join(FOLDER_YOUTUBE_ACTIVITY_LOG_PATH, ACTIVITY_PLACEHOLDER_NAME)
 
 # Profile data
 FILE_PROFILE_JSON_PATH = os.path.join(TAKEOUT_PATH, "Perfil", "Perfil.json")
@@ -49,6 +49,10 @@ FILE_PLAYLISTS_CSV_PATH = os.path.join(FOLDER_YOUTUBE_PLAYLISTS_PATH, "Listas de
 
 # Calendar data
 CALENDAR_PATH = os.path.join(TAKEOUT_PATH, "Calendar")
+
+# ALL ACCESSES
+FOLDER_ALL_ACCESSES = os.path.join(TAKEOUT_PATH, "Actividad de registro de accesos")
+FILE_ALL_ACCESSES = os.path.join(FOLDER_ALL_ACCESSES, "Actividades_ una lista con los servicios de Google.csv")
 
 # Output file path for activity logs
 OUTPUT_CSV_PATH = os.path.join(DATA_OUTPUT_FOLDER, 'output.csv')
@@ -227,7 +231,6 @@ def parse_ics(file_path):
 def load_all():
     # PROFILE DATA
     person_info = pd.DataFrame([parse_profile_file("/home/ivan/Desktop/datasets/Takeout/Perfil/Perfil.json")])
-    print(person_info)
 
     # YOUTUBE AND YOUTUBE MUSIC
     subscribed_channels_df = pd.read_csv("/home/ivan/Desktop/datasets/Takeout/YouTube y YouTube Music/suscripciones/suscripciones.csv")
@@ -241,17 +244,16 @@ def load_all():
         calendar_events.append(pd.DataFrame(parse_ics(entry)))
     
     calendar_events = pd.concat(calendar_events)
-    print(calendar_events)
 
     # ACTIVITY LOGS
-    activity_logs_df = pd.concat(
-        [
-            read_html(FILE_YOUTUBE_ACTIVITY_LOG_PATH, max_threads=8), 
-            read_html(FILE_DRIVE_ACTIVITY_LOG_PATH, max_threads=8), 
-            read_html(FILE_TAKEOUT_ACTIVITY_LOG_PATH, max_threads=8)
-        ], 
-        ignore_index=True)
-    activity_logs_df.to_csv(os.path.join('data', 'output.csv'), index=False, sep='\t')
+    # activity_logs_df = pd.concat(
+    #    [
+    #        read_html(FILE_YOUTUBE_ACTIVITY_LOG_PATH, max_threads=8), 
+    #        read_html(FILE_DRIVE_ACTIVITY_LOG_PATH, max_threads=8), 
+    #        read_html(FILE_TAKEOUT_ACTIVITY_LOG_PATH, max_threads=8)
+    #    ], 
+    #    ignore_index=True)
+    #activity_logs_df.to_csv(os.path.join('data', 'output.csv'), index=False, sep='\t')
 
 
 ############# ENTITY MAPPER FUNCTIONS
@@ -319,12 +321,12 @@ def __main__():
     load_all()
     #load_data_to_duckdb(os.path.join("data", "output.csv"), 'csv_table', conn)
     run_mapping(conn, os.path.join('config','mapping.json'))
-    
+
     query = None
     with open(os.path.join('mappings', 'test_query.sql'), 'r', encoding='utf-8') as file:
         query = file.read()
     
-    result = db.query_data(conn, query=query)
+    result = db.query_data(conn, query="select * from raw_all_activity_accesses")
 
     print(result.head(50))
 

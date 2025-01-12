@@ -1,3 +1,4 @@
+setuptools
 dash
 dash-bootstrap-components
 pandas
@@ -10,3 +11,6 @@ bs4
 duckdb
 docker
 icalendar
+jinja2
+babel
+unidecode
