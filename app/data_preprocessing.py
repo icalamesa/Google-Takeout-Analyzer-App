@@ -326,9 +326,9 @@ def __main__():
     with open(os.path.join('mappings', 'test_query.sql'), 'r', encoding='utf-8') as file:
         query = file.read()
     
-    result = db.query_data(conn, query="select * from raw_all_activity_accesses")
+    result = db.query_data(conn, query="select * FROM clean_chrome_history AS t")
 
-    print(result.head(50))
+    print(result)
 
 __main__()
     

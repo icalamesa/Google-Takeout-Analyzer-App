@@ -1,17 +1,17 @@
 SCOPE DEL PROYECTO
 
 - TAKEOUT
-    - Actividad de registro de acceso global: LEFT JOIN 1 <- 2
-        -- 1. Actividades_ una lista con los servicios de Google.csv
-        -- 2. Dispositivos
+    #- Actividad de registro de acceso global: LEFT JOIN 1 <- 2
+    #    -- 1. Actividades_ una lista con los servicios de Google.csv
+    #    -- 2. Dispositivos
     - CALENDAR: UNION ALL 1 y 2
         -- Calendar 1: Script que ya existe
         -- Calendar 2: Script que ya existe
     - Chrome:
-        HISTORIAL:
-          -- JSON POR PARSEAR
-          -- Se puede extraer el dominio facil
-          -- fecha en microsegundos. Convertir a dia/hora
+    #    HISTORIAL:
+    #      -- JSON POR PARSEAR
+    #      -- Se puede extraer el dominio facil
+    #      -- fecha en microsegundos. Convertir a dia/hora
     - Historial de ubicaciones:
       (inferir desde la IP del registro de acceso global)
     - Mi Actividad: Extrayendo un JSON, puedes crear un recopilatorio global de todos los archivos. Automatizado, y crea columnas donde se necesite

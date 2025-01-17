@@ -33,6 +33,14 @@
         "mapping_file": "mappings/clean_all_activity_accesses.sql"
       },
       {
+        "id": "chrome_history",
+        "enabled": true,
+        "files": {
+          "es": "{base_path}/Chrome/Historial.json"
+        },
+        "mapping_file": "mappings/clean_chrome_history.sql"
+      },
+      {
         "id": "video_metadata",
         "enabled": false,
         "files": {
