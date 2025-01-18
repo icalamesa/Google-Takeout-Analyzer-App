@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Refined Dark Landing Page</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" 
+    rel="stylesheet"
+  >
+
+  <style>
+    /* GLOBAL RESETS */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #121212;
+      /* Keep overflow hidden if you want a fullscreen look.
+         Otherwise you can allow scrolling with overflow: auto */
+    }
+
+    /* PAGE WRAPPER */
+    .page-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 1rem;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 420px;
+      width: 100%;
+      padding: 2rem;
+      margin: 1rem auto;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1f1f1f 0%, #2a2a2a 100%);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      color: #ededed;
+      text-align: center;
+    }
+
+    /* HEADINGS & TEXT */
+    .container h1 {
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+    .container p {
+      font-size: 0.9rem;
+      color: #bbbbbb;
+      margin-bottom: 1.5rem;
+    }
+
+    /* INPUTS / SELECTS */
+    .file-input,
+    .filter-select {
+      display: block;
+      width: 100%;
+      margin: 1rem auto;
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #3a3a3a;
+      background-color: #2a2a2a;
+      color: #eeeeee;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .file-input:hover,
+    .filter-select:hover {
+      background-color: #3a3a3a;
+      border-color: #4a4a4a;
+    }
+
+    /* OPTIONAL ACTION BUTTON */
+    .action-btn {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.4rem;
+      font-size: 1rem;
+      font-weight: 400;
+      border: none;
+      border-radius: 6px;
+      background-color: #555555;
+      color: #ffffff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .action-btn:hover {
+      background-color: #6a6a6a;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 480px) {
+      .container {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+      .container h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="container">
+      <h1>Select Folder & Filter</h1>
+      <p>Choose a folder from your system and optionally apply a filter for output files.</p>
+
+      <!-- Folder Selector -->
+      <input 
+        type="file" 
+        class="file-input" 
+        id="folder-selector" 
+        webkitdirectory 
+        directory 
+        multiple 
+        aria-label="Select folder"
+      />
+
+      <!-- Filter Selector -->
+      <select class="filter-select" id="filter-selector">
+        <option value="">No Filter</option>
+        <option value="*.csv">CSV Files</option>
+        <option value="*.json">JSON Files</option>
+        <option value="*.txt">Text Files</option>
+      </select>
+
+      <!-- Action Button (optional) -->
+      <button class="action-btn" id="process-btn">Process Files</button>
+    </div>
+  </div>
+
+  <script>
+    const folderSelector = document.getElementById('folder-selector');
+    const filterSelector = document.getElementById('filter-selector');
+    const processBtn = document.getElementById('process-btn');
+
+    processBtn.addEventListener('click', () => {
+      const selectedFiles = folderSelector.files; // FileList
+      const chosenFilter = filterSelector.value;
+      console.log('Selected folder files:', selectedFiles);
+      console.log('Chosen filter:', chosenFilter);
+      window.location.href = '/dashboard';
+    });
+  </script>
+</body>
+</html>

@@ -12,8 +12,8 @@ SCOPE DEL PROYECTO
     #      -- JSON POR PARSEAR
     #      -- Se puede extraer el dominio facil
     #      -- fecha en microsegundos. Convertir a dia/hora
-    - Historial de ubicaciones:
-      (inferir desde la IP del registro de acceso global)
+    #- Historial de ubicaciones: DISCARDED
+    #  (inferir desde la IP del registro de acceso global)
     - Mi Actividad: Extrayendo un JSON, puedes crear un recopilatorio global de todos los archivos. Automatizado, y crea columnas donde se necesite
     Comentarios - Basar el producto en el header. Descomponer los nestings para que sean como categoria.subcategoria1, categoria.subcategoria2. Hay que inferir la actividad del url.
         PUBLICIDAD

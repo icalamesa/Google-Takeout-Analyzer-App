@@ -39,7 +39,6 @@ import pandas as pd
 import duckdb
 
 def parse_xml_to_dataframe(xml_file_path):
-    # Placeholder for the actual XML parsing logic
     pass
 
 import csv
@@ -52,7 +51,7 @@ def detect_separator(sample):
     if sniffer.has_header(sample):
         dialect = sniffer.sniff(sample)
         return dialect.delimiter
-    return ','  # Default to comma if detection fails
+    return ','
 
 def load_csv_to_duckdb(file_path, table_name, conn):
     """Load a potentially empty CSV to DuckDB, detecting the separator."""
@@ -65,7 +64,7 @@ def load_csv_to_duckdb(file_path, table_name, conn):
             separator = detect_separator(sample)
         df = pd.read_csv(file_path, delimiter=separator)
 
-        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns] #lower and replace whitespace with underscore
+        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns] 
 
         if df.empty:
             query = f"CREATE TABLE {table_name} ({', '.join(df.columns)});"
@@ -116,19 +115,15 @@ def create_raw_view(conn, file_path, table_name):
     view_name = f"raw_{table_name}"
     try:
         if file_path.endswith('.csv'):
-            # Detect separator and create a view directly from the CSV file
-            separator = detect_separator(file_path)  # Assuming detect_separator is implemented correctly
+            separator = detect_separator(file_path)  
             query = f"CREATE VIEW {view_name} AS SELECT * FROM read_csv_auto('{file_path}')"
         elif file_path.endswith('.json'):
-            # Create a view directly from the JSON file
             query = f"CREATE VIEW {view_name} AS SELECT * FROM read_json_auto('{file_path}')"
         elif file_path.endswith('.xml'):
-            # Assuming DuckDB can directly read XML or you have a custom function to handle it
-            query = f"CREATE VIEW {view_name} AS SELECT * FROM read_xml_auto('{file_path}')"  # Modify as needed
+            query = f"CREATE VIEW {view_name} AS SELECT * FROM read_xml_auto('{file_path}')" 
         else:
             raise ValueError(f"Unsupported file type for {file_path}")
 
-        # Execute the SQL command to create the view
         conn.execute(query)
         print(f"View {view_name} created successfully for {file_path}.")
     except Exception as e:
@@ -146,13 +141,11 @@ def create_table_from_mapping(conn, mapping_path):
     - mapping_path: Path to the SQL file that contains the mapping.
     """
     try:
-        # Read the entire SQL script from the file
         with open(mapping_path, 'r') as file:
             script = file.read().strip()
             if not script:
                 raise ValueError("Mapping file is empty or only contains whitespace.")
 
-        # Execute the SQL script
         conn.execute(script)
 
     except FileNotFoundError:
