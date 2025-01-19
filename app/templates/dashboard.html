@@ -1,100 +1,23 @@
-{# templates/page_with_dashboard.html #}
+{# templates/dashboard.html #}
 {% extends "base.html" %}
 
-{% block title %}Dark Themed Dashboard Template{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <style>
   #container {
     display: flex;
-    flex-direction: row;
     width: 100%;
-    height: calc(100vh - 80px);
+    height: calc(99vh - 80px); /* Adjust as needed for your header */
   }
-  #left-panel {
-    flex: 2;
-    padding: 1.5rem;
-    background-color: rgba(30, 30, 30, 0.9);
-    border-right: 1px solid #3a3a3a;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.4);
-  }
-  #left-panel h2 {
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-  }
-  #sql-query-input {
-    width: 100%;
-    height: 100px;
-    resize: vertical;
-    font-family: monospace;
-    font-size: 0.9rem;
-    padding: 0.5rem;
-    color: #eee;
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 6px;
-    outline: none;
-    transition: border-color 0.2s ease;
-  }
-  #sql-query-input:focus {
-    border-color: #666;
-  }
-  #execute-query-btn {
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: #555;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    transition: background-color 0.3s ease;
-  }
-  #execute-query-btn:hover {
-    background-color: #6a6a6a;
-  }
-  #error-logs {
-    min-height: 50px;
-    background-color: #3a3a3a;
-    color: #ff8e8e;
-    padding: 0.5rem;
-    border: 1px solid #5f2f2f;
-    border-radius: 6px;
-    overflow-y: auto;
-    font-size: 0.9rem;
-  }
-  #table-container {
-    width: 100%;
-    max-height: 300px;
-    overflow: auto;
-    border: 1px solid #555;
-    border-radius: 6px;
-    background-color: #2a2a2a;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    color: #ddd;
-  }
-  table th, table td {
-    border: 1px solid #555;
-    padding: 0.5rem;
-    background-color: #2a2a2a;
-  }
-  table th {
-    background-color: #333;
-    font-weight: 600;
-  }
+  
   #right-panel {
-    flex: 6;
+    flex: 1;
     position: relative;
     overflow: hidden;
-    background-color: #fff1e0;
+    background-color: #fff1e0; /* Use your preferred background color */
   }
+
   #dash-iframe {
     width: 100%;
     height: 100%;
@@ -104,115 +27,17 @@
   @media (max-width: 768px) {
     #container {
       flex-direction: column;
-    }
-    #left-panel {
-      flex: 1;
-      width: 100%;
-      box-shadow: none;
-      border-right: none;
-      border-bottom: 1px solid #3a3a3a;
+      height: auto;
     }
     #right-panel {
-      flex: 1;
       height: 50vh;
     }
   }
 </style>
 
 <div id="container">
-  <div id="left-panel">
-    <h2>SQL Query</h2>
-    <textarea id="sql-query-input" placeholder="Write your SQL query here..."></textarea>
-    <button id="execute-query-btn">Execute</button>
-    <h2>Error Logs</h2>
-    <div id="error-logs"></div>
-    <h2>Query Result</h2>
-    <div id="table-container">
-      <table id="output-table">
-        <thead>
-          <tr><!-- Dynamic Column Headers Inserted Here --></tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
-  </div>
   <div id="right-panel">
     <iframe id="dash-iframe" src="http://localhost:5000/dash"></iframe>
   </div>
 </div>
-
-<script>
-  function updateTable(data) {
-    const theadRow = document.querySelector('#output-table thead tr');
-    const tbody = document.querySelector('#output-table tbody');
-    theadRow.innerHTML = '';
-    tbody.innerHTML = '';
-
-    if (!data || data.length === 0) {
-      const noDataRow = document.createElement('tr');
-      const td = document.createElement('td');
-      td.textContent = "No results";
-      td.colSpan = 1;
-      noDataRow.appendChild(td);
-      tbody.appendChild(noDataRow);
-      return;
-    }
-
-    const columns = Object.keys(data[0]);
-    columns.forEach(col => {
-      const th = document.createElement('th');
-      th.textContent = col;
-      theadRow.appendChild(th);
-    });
-
-    data.forEach(row => {
-      const tr = document.createElement('tr');
-      columns.forEach(col => {
-        const td = document.createElement('td');
-        td.textContent = row[col];
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    });
-  }
-
-  function showError(message) {
-    const errorLogs = document.getElementById('error-logs');
-    errorLogs.textContent = message || '';
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const executeBtn = document.getElementById('execute-query-btn');
-    const sqlInput = document.getElementById('sql-query-input');
-
-    executeBtn.addEventListener('click', () => {
-      const query = sqlInput.value.trim();
-      if (!query) {
-        showError('Please enter a valid SQL query.');
-        return;
-      }
-      showError('');
-
-      fetch('/api/run-query', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sql: query })
-      })
-      .then(res => res.json())
-      .then(responseData => {
-        if (responseData.error) {
-          showError(responseData.error);
-        } else {
-          showError('');
-          updateTable(responseData.data);
-        }
-      })
-      .catch(err => {
-        showError('An error occurred while running the query.');
-        console.error(err);
-      });
-    });
-  });
-</script>
 {% endblock %}

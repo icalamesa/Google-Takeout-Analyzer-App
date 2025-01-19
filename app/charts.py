@@ -1,11 +1,12 @@
-# config.py
+import plotly.graph_objects as go
+
 import plotly.graph_objects as go
 
 CONFIG = {
     "font": {
         "family": "Montserrat, sans-serif",
-        "size": 15,
-        "color": "#3b3b3b" 
+        "size": 9,
+        "color": "#3b3b3b"
     },
     "marker": {
         "size": 12,
@@ -19,35 +20,33 @@ CONFIG = {
         "line_width": 2
     },
     "background": {
-        "plot_bgcolor": "rgba(0,0,0,0)", 
-        "paper_bgcolor": "#fff1e0"        
+        "plot_bgcolor": "rgba(0,0,0,0)",  
+        "paper_bgcolor": "#f8f8f8"
     },
     "margin": {
-        "l": 40, "r": 40, "t": 40, "b": 40
+        "l": 5,
+        "r": 5,
+        "t": 0,   # Slightly taller top margin for the "card header" feel
+        "b": 0
     },
     "accent_color": "#00bcd4",
-    "accent_border": "#3b3b3b" 
+    "accent_border": "#3b3b3b",
+    # Optional: A 'card_border_width' or 'card_border_radius' for shape styling
+    "card_border_width": 1,
+    "card_border_radius": 0  # Change to 10 or 15 if you plan a custom path for rounding
 }
 
 
-def create_custom_chart(data, x_col, y_col, title, chart_type="bar", color=None, border_color=None):
-    """
-    Create a Plotly chart with a clear (transparent) plot area and a paper background
-    that matches the dashboard's background (#fff1e0). A border (via a CSS wrapper in the layout)
-    can provide the rounded effect.
-    
-    Parameters:
-        data (pd.DataFrame): Data for the chart.
-        x_col (str): Column for the x-axis.
-        y_col (str): Column for the y-axis.
-        title (str): Chart title.
-        chart_type (str): 'bar', 'line', 'scatter', or 'area'.
-        color (str): Primary color for data elements (defaults to CONFIG accent).
-        border_color (str): Border color for markers (defaults to CONFIG accent_border).
-    
-    Returns:
-        go.Figure: A configured Plotly figure.
-    """
+def create_custom_chart(
+    data,
+    x_col,
+    y_col,
+    title,
+    chart_type="bar",
+    color=None,
+    border_color=None,
+    error_col=None
+):
     if color is None:
         color = CONFIG["accent_color"]
     if border_color is None:
@@ -87,6 +86,27 @@ def create_custom_chart(data, x_col, y_col, title, chart_type="bar", color=None,
                 )
             ]
         )
+    elif chart_type == "line_error":
+        # This new chart type handles error bars, using `error_col` if provided
+        if error_col and error_col in data.columns:
+            error_values = data[error_col]
+        else:
+            error_values = None
+        fig = go.Figure(
+            data=[
+                go.Scatter(
+                    x=data[x_col],
+                    y=data[y_col],
+                    mode="lines+markers+text",
+                    line=dict(color=color, width=CONFIG["line"]["width"]),
+                    marker={"size": 14,"line_width": 0.5},
+                    text=[f"{val:.1f}" for val in data[y_col]],
+                    textfont={ "family": "Montserrat, sans-serif", "size": 6,"color": "#3b3b3b"},
+                    textposition="middle center",
+                    error_y=dict(type='data', array=error_values, visible=True) if error_values is not None else None
+                )
+            ]
+        )
     elif chart_type == "scatter":
         fig = go.Figure(
             data=[
@@ -116,6 +136,16 @@ def create_custom_chart(data, x_col, y_col, title, chart_type="bar", color=None,
                     textposition="top center"
                 )
             ]
+        )
+    elif chart_type == "heatmap":
+        pivot = data.pivot(index='time_gap', columns='period', values='count')
+        fig = go.Figure(
+            data=go.Heatmap(
+                z=pivot.values,
+                x=list(pivot.columns),
+                y=list(pivot.index),
+                colorscale="Viridis"
+            )
         )
     else:
         raise ValueError(f"Unsupported chart type: {chart_type}")
@@ -148,5 +178,4 @@ def create_custom_chart(data, x_col, y_col, title, chart_type="bar", color=None,
         paper_bgcolor=CONFIG["background"]["paper_bgcolor"],
         margin=CONFIG["margin"]
     )
-
     return fig

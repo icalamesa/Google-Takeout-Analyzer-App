@@ -39,7 +39,7 @@ def create_app():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     
-    dash_app = init_dash_app(server, pathname='/dash/')
+    dash_app = init_dash_app(server, pathname='/dash/', TakeoutDatabase=TakeoutDatabase)
     return server
 
 if __name__ == '__main__':
