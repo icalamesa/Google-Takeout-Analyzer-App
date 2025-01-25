@@ -16,3 +16,4 @@ babel
 unidecode
 jsonify
 dash-bootstrap-components
+pytest

@@ -15,6 +15,7 @@ import locale
 
 import duckdb
 import csv
+import app.data_preprocessor as dp
 
 
 class DuckDBInterface:
@@ -72,17 +73,22 @@ class DuckDBInterface:
 
 
 class GoogleTakeoutProcessor:
-    """Main interface for processing Google Takeout data and managing the database."""
+    """
+    Main interface for processing Google Takeout data and managing 
+    the DuckDB-based pipeline. Integrates with DataPreprocessor for 
+    parsing and preparing data prior to DB ingestion.
+    """
 
     def __init__(self, takeout_path, data_output_folder, reset_db=True):
         self.takeout_path = takeout_path
         self.data_output_folder = data_output_folder
         self.db_file = DuckDBInterface.setup_database(
-            os.path.join(data_output_folder, 'my_duckdb.duckdb'), reset=reset_db
+            os.path.join(data_output_folder, 'my_duckdb.duckdb'), 
+            reset=reset_db
         )
 
         self.paths = {
-            "activity_log": os.path.join(self.takeout_path, "Mi actividad"),
+            "activity_root": os.path.join(self.takeout_path, "Mi actividad"),
             "profile_json": os.path.join(self.takeout_path, "Perfil", "Perfil.json"),
             "subscriptions_csv": os.path.join(
                 self.takeout_path, "YouTube y YouTube Music", "suscripciones", "suscripciones.csv"
@@ -95,15 +101,34 @@ class GoogleTakeoutProcessor:
             ),
             "calendar": os.path.join(self.takeout_path, "Calendar"),
             "access_logs_csv": os.path.join(
-                self.takeout_path, "Actividad de registro de accesos",
+                self.takeout_path, "Actividad de registro de accesos", 
                 "Actividades_ una lista con los servicios de Google.csv"
             ),
         }
 
+        self.activity_logs = [
+            os.path.join(self.paths["activity_root"], "Drive", "MiActividad.html"),
+            os.path.join(self.paths["activity_root"], "Takeout", "MiActividad.html"),
+            os.path.join(self.paths["activity_root"], "YouTube", "MiActividad.html"),
+        ]
+
+        self.data_preprocessor = dp.DataPreprocessor(
+            html_chunk_factor=4,
+            max_threads=8,
+            calendar_path=self.paths["calendar"],
+            profile_path=self.paths["profile_json"],
+            activity_log_paths=self.activity_logs
+        )
+        for filename, content in self.data_preprocessor.load_all_datasets().items():
+            content.to_csv(os.path.join(data_output_folder, filename+'.csv',), index=False)
+        
         self.run_mapping(os.path.join('config', 'mapping.json'))
 
     def run_mapping(self, config_path, language_code='es'):
-        """Load and apply mappings for data processing."""
+        """
+        Load and apply SQL mappings to create or update 
+        tables/views in the DuckDB database.
+        """
         try:
             paths = self.load_config(config_path, language_code)
             for key, cfg in paths.items():
@@ -120,13 +145,12 @@ class GoogleTakeoutProcessor:
         """Load mapping configurations for data ingestion."""
         with open(config_path, 'r') as file:
             config = json.load(file)
-        base_path = self.takeout_path
         data_mapping = {}
         for item in config['data_files']:
-            file_path = item['files'][language_code].replace("{base_path}", base_path).replace(
-                "{transformations_path}", self.data_output_folder
-            )
-            mapping_path = item['mapping_file'].replace("{base_path}", base_path)
+            file_path = item['files'][language_code]\
+                .replace("{base_path}", self.takeout_path)\
+                .replace("{transformations_path}", self.data_output_folder)
+            mapping_path = item['mapping_file'].replace("{base_path}", self.takeout_path)
             data_mapping[item['id']] = {
                 'file_path': file_path,
                 'mapping_path': mapping_path,
@@ -135,16 +159,16 @@ class GoogleTakeoutProcessor:
         return data_mapping
 
     def query_data(self, query):
-        """Run a SQL query on the database and return the result."""
+        """Run a SQL query on the database."""
         return DuckDBInterface.query_data(self.db_file, query)
 
-    def example_workflow(self):
-        """Example workflow to query the processed data."""
-        query = "SELECT * FROM clean_profiles LIMIT 5"
-        result = self.query_data(query)
-        print(result)
-        return result
-
+    def preprocess_data(self):
+        """
+        Leverage the DataPreprocessor to load raw data from
+        profile, calendar, subscriptions, etc. 
+        Returns multiple DataFrames for further ingestion or exploration.
+        """
+        self.data_preprocessor.load_all()
 
 if __name__ == '__main__':
     processor = GoogleTakeoutProcessor(
@@ -152,4 +176,6 @@ if __name__ == '__main__':
         data_output_folder='data',
         reset_db=True
     )
-    processor.example_workflow()
+    query = "SELECT * FROM clean_profiles LIMIT 5"
+    result = processor.query_data(query)
+    print("Query result:\n", result)
