@@ -1,9 +1,3 @@
-Collecting workspace information
-
-Sure, here is a draft for your README file:
-
----
-
 # Google Takeout Data Analyzer
 
 Google Takeout Data Analyzer is a work in progress web application designed to process and analyze data from Google Takeout. The application uses Flask for the backend, Dash for interactive visualizations, and DuckDB for efficient data querying.
